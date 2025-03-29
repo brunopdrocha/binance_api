@@ -8,15 +8,15 @@ from dotenv import load_dotenv
 from datetime import datetime
 import random
 
-# Carrega as variáveis do .env
-load_dotenv()
-
 # Base Data
 class Base(DeclarativeBase):
     pass
 
 #Criação banco de Dados
 db = SQLAlchemy(model_class=Base)
+
+# Carrega as variáveis do .env
+load_dotenv()
 
 # User Data
 class User(db.Model):
