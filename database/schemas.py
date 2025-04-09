@@ -14,7 +14,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         instance = True
 
 # Schema para a tabela de Order
-class OrderSchema(ma.SQLALchemyAutoSchema):
+class OrderSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Order
         incluir_fk = True
