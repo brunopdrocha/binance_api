@@ -4,9 +4,11 @@ from flask import Blueprint, request, jsonify
 from database.custom_models import db, User, Order, TradeReport
 from database.schemas import UserSchema, OrderSchema, TradeReportSchema
 import requests
+from binance.client import Client
 
 # Chamando Blueprint
 bp = Blueprint('api', __name__)
+
 
 # Instance pros Schemas
 user_schema = UserSchema()
@@ -17,6 +19,8 @@ report_schema = TradeReportSchema()
 reports_schema = TradeReportSchema(many=True)
 
 # --- ROTAS ---
+
+### User ###
 
 # Rota para criar user
 @bp.route('/users', methods=['POST'])
@@ -42,17 +46,64 @@ def delete_user(id):
     db.session.commit()
     return jsonify({"message": "Usuário deletado"})
 
+### Ordem ###
+
 # Rota para as ordens de compra e venda
-@bp.route('/orders', methods=['POST'])
-def create_order():
-    order = Order(**request.json)
-    db.session.add(order)
-    db.session.commit()
-    return order_schema.jsonify(order)
+@bp.route('/orders/user/<int:id>', methods=['POST'])
+
+def create_order(id):
+    # Busca o usuário com base no ID
+    user = User.query.get_or_404(id)
+
+    # Instancia o cliente Binance com as chaves do usuário
+    api_key = user.binance_api_key
+    api_secret = user.binance_secret_key
+    client = Client(api_key, api_secret)
+
+    # Extrai os dados da ordem do corpo da requisição
+    data = request.json
+
+    # Pega os campos necessários
+    symbol = data.get('symbol')
+    side = data.get('side', 'BUY')  # Padrão: BUY
+    order_type = data.get('type', 'LIMIT')
+    quantity = data.get('quantity')
+    price = data.get('price')
+    time_in_force = data.get('timeInForce', 'GTC')  # Padrão: GTC
+
+    # Envia a ordem para a Binance
+    try:
+        binance_order = client.create_order(
+            symbol=symbol,
+            side=side,
+            type=order_type,
+            quantity=quantity,
+            price=price,
+            timeInForce=time_in_force
+        )
+        print("✅ Ordem enviada com sucesso para Binance")
+
+        # Cria a instância da ordem para o banco
+        order = Order(**data)
+        db.session.add(order)
+        db.session.commit()
+
+        return jsonify({
+            "mensagem": "Ordem criada com sucesso",
+            "binance_response": binance_order
+        }), 201
+
+    except Exception as e:
+        print("❌ Erro ao enviar ordem:", str(e))
+        return jsonify({"erro": str(e)}), 400
 
 @bp.route('/orders', methods=['GET'])
 def get_orders():
     return orders_schema.jsonify(Order.query.all())
+
+@bp.route('/orders/<int:id>', methods=['GET'])
+def get_orders():
+    return orders_schema.jsonify(Order.query.get_or_404(id))
 
 @bp.route('/orders/<int:id>', methods=['PUT'])
 def update_order(id):
@@ -70,6 +121,8 @@ def delete_order(id):
     db.session.delete(order)
     db.session.commit()
     return jsonify({"message": "Ordem deletada"})
+
+### Trades ###
 
 # Rotas para o report dos Trades
 @bp.route('/reports', methods=['POST'])
