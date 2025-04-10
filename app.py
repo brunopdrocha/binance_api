@@ -9,7 +9,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URI")
+
+DATABASE_URI = 'mysql+pymysql://brunopdrocha:admin%40123@azurebinancedata.mysql.database.azure.com:3306/trading_bot?ssl_verify_cert=false'
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Init DB e Marshmallow
