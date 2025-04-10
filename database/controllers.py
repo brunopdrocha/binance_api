@@ -65,6 +65,7 @@ def create_order(id):
     data = request.json
 
     # Pega os campos necessários
+    data['user_id'] = id
     symbol = data.get('symbol')
     side = data.get('side', 'BUY')  # Padrão: BUY
     order_type = data.get('type', 'LIMIT')
