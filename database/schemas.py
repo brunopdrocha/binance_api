@@ -1,7 +1,7 @@
 # Importacao das bibliotecas usadas
 
 from flask_marshmallow import Marshmallow
-from custom_models import User, Order, TradeReport
+from database.custom_models import User, Order, TradeReport
 
 # Definicao de variavel para chamar o Marshmallow e suas funcoes
 ma = Marshmallow()
