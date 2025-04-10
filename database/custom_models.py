@@ -38,15 +38,12 @@ class Order(db.Model):
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
-    symbol: Mapped[str] = mapped_column(String(20), nullable=False)  # Ex: BTCUSDT
+    symbol: Mapped[str] = mapped_column(String(20), nullable=False)  
+    side: Mapped[str] = mapped_column(String(20), nullable=False)  
+    types: Mapped[str] = mapped_column(String(20), nullable=False)  
     quantity: Mapped[float] = mapped_column(Numeric(18, 8), nullable=False)  # 8 casas decimais para cripto
-    buy_price: Mapped[float] = mapped_column(Numeric(18, 8), nullable=False)
-    sell_price: Mapped[float] = mapped_column(Numeric(18, 8), nullable=True)  # Preenchido ao fechar a ordem
-    stop_loss: Mapped[float] = mapped_column(Numeric(18, 8), nullable=True)
-    take_profit: Mapped[float] = mapped_column(Numeric(18, 8), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), default='open')  # open, closed, canceled
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)  # Tornando o campo nullable
+    price: Mapped[float] = mapped_column(Numeric(18, 8), nullable=False)
+    timeInForce: Mapped[str] = mapped_column(String(20), nullable=False) 
     
     # Relacionamentos bidirecionais
     user = relationship("User", back_populates="orders")
@@ -64,66 +61,28 @@ class TradeReport(db.Model):
     # Relacionamento bidirecional
     order = relationship("Order", back_populates="reports")
 
+if __name__ == "__main__":
+    from flask import Flask
+    
+    app = Flask(__name__)
 
-# Função para teste de implementação para Banco de Dados mysql
+    # Corrigindo a obtenção da variável de ambiente
+    database_url = os.getenv("DATABASE_URL")
 
-#if __name__ == "__main__":
-#    from flask import Flask
-#    
-#    app = Flask(__name__)
-#
-#    # Corrigindo a obtenção da variável de ambiente
-#    database_url = os.getenv("DATABASE_URL")
-#
-#    if not database_url:
-#        print("Erro: A variável DATABASE_URL não foi encontrada no ambiente.")
-#    else:
-#        print(f"Conectando ao banco de dados: {database_url}")
-#
-#    # Configuração para MySQL
-#    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-#
-#    db.init_app(app)
-#    
-#    with app.app_context():
-#        try:
-#            db.create_all()
-#            print("Tabelas criadas com sucesso!")
-#
-#            # Definindo valores possíveis para as variáveis
-#            symbols = ["BTCUSD", "ETHUSD", "BNBUSD", "ADAUSD", "SOLUSD"]
-#
-#            # Gerando valores aleatórios
-#            # Usando uma instância da classe User em vez de um dicionário
-#            new_user = User(
-#                login=f"test_user{random.randint(10000, 99999)}",
-#                password=f"test_{random.randint(10000, 99999)}_pass",
-#                binance_api_key=f"api_key{random.randint(1000, 9999)}",
-#                binance_secret_key=f"sec_key{random.randint(1000, 9999)}",
-#                saldo_inicio=round(random.uniform(500.0, 5000.0), 2)
-#            )
-#
-#            db.session.add(new_user)
-#            db.session.commit()
-#            print("Usuário inserido com sucesso!")
-#            
-#            # Agora que temos o ID do usuário, podemos criar uma ordem associada a ele
-#            new_order = Order(
-#                user_id=new_user.id,  # Usar o ID do usuário recém-criado
-#                symbol=random.choice(symbols),
-#                quantity=round(random.uniform(0.01, 2.0), 8),
-#                buy_price=round(random.uniform(20000, 70000), 8),
-#                sell_price=None,  # Ainda não fechada
-#                stop_loss=round(random.uniform(15000, 25000), 8),
-#                take_profit=round(random.uniform(75000, 90000), 8),
-#                status="open",
-#                created_at=datetime.utcnow(),
-#                closed_at=None
-#            )
-#            
-#            db.session.add(new_order)
-#            db.session.commit()
-#            print("Ordem inserida com sucesso!")
-#            
-#        except Exception as e:
-#            print("Erro:", str(e))
+    if not database_url:
+        print("Erro: A variável DATABASE_URL não foi encontrada no ambiente.")
+    else:
+        print(f"Conectando ao banco de dados: {database_url}")
+
+    # Configuração para MySQL
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
+    db.init_app(app)
+    
+    with app.app_context():
+        try:
+            db.create_all()
+            print("Tabelas criadas com sucesso!")
+            
+        except Exception as e:
+            print("Erro:", str(e))
