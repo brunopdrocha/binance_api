@@ -58,6 +58,7 @@ class TradeReport(db.Model):
     profit_loss: Mapped[float] = mapped_column(Numeric(15, 2), nullable=True)
     report_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     
+    
     # Relacionamento bidirecional
     order = relationship("Order", back_populates="reports")
 

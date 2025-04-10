@@ -99,27 +99,35 @@ def create_order(id):
         print("Erro ao enviar ordem:", str(e))
         return jsonify({"erro": str(e)}), 400
 
-@bp.route('/orders', methods=['GET'])
+@bp.route('/orders/user', methods=['GET'])
 def get_orders():
     return orders_schema.jsonify(Order.query.all())
 
-@bp.route('/orders/<int:id>', methods=['GET'])
-def get_ordersid():
-    return orders_schema.jsonify(Order.query.get_or_404(id))
+@bp.route('/orders/user/<int:id>', methods=['GET'])
+def get_user_orders(id):
+    user = User.query.get_or_404(id)
+    orders = Order.query.filter_by(user_id=user.id).all()
+    return orders_schema.jsonify(orders)
 
-@bp.route('/orders/<int:id>', methods=['PUT'])
-def update_order(id):
-    order = Order.query.get_or_404(id)
+@bp.route('/orders/user/<int:user_id>/order/<int:order_id>', methods=['PUT'])
+def update_user_order(user_id, order_id):
+    # Busca a ordem que pertença ao user_id
+    order = Order.query.filter_by(id=order_id, user_id=user_id).first_or_404()
+
+    # Atualiza os campos enviados no JSON
     data = request.json
     for key in data:
         if hasattr(order, key):
             setattr(order, key, data[key])
+
     db.session.commit()
     return order_schema.jsonify(order)
 
-@bp.route('/orders/<int:id>', methods=['DELETE'])
-def delete_order(id):
-    order = Order.query.get_or_404(id)
+@bp.route('/orders/user/<int:user_id>/order/<int:order_id>', methods=['DELETE'])
+def delete_user_order(user_id, order_id):
+    # Busca a ordem que pertença ao user_id
+    order = Order.query.filter_by(id=order_id, user_id=user_id).first_or_404()
+
     db.session.delete(order)
     db.session.commit()
     return jsonify({"message": "Ordem deletada"})
@@ -134,9 +142,32 @@ def create_report():
     db.session.commit()
     return report_schema.jsonify(report)
 
-@bp.route('/reports', methods=['GET'])
-def get_reports():
+@bp.route('/reports/<int:id>', methods=['GET'])
+def get_reports(id):
     return reports_schema.jsonify(TradeReport.query.all())
+
+@bp.route('/reports/<int:report_id>', methods=['PUT'])
+def update_report(report_id):
+    report = TradeReport.query.get_or_404(report_id)
+    data = request.json
+
+    if 'order_id' in data:
+        report.order_id = data['order_id']
+    if 'profit_loss' in data:
+        report.profit_loss = data['profit_loss']
+    if 'report_date' in data:
+        report.report_date = data['report_date']  # caso você queira aceitar uma data manualmente
+
+    db.session.commit()
+    return report_schema.jsonify(report)
+
+@bp.route('/reports/<int:report_id>', methods=['DELETE'])
+def delete_report(report_id):
+    report = TradeReport.query.get_or_404(report_id)
+    db.session.delete(report)
+    db.session.commit()
+    return jsonify({"message": "Relatório deletado com sucesso"})
+
 
 @bp.route('/price/<string:symbol>', methods=['GET'])
 def get_price(symbol):
@@ -148,6 +179,6 @@ def get_price(symbol):
 
     data = response.json()
     return jsonify({
-        "moeda": data["symbol"],
-        "preco": float(data["price"])
+        "symbol": data["symbol"],
+        "price": float(data["price"])
     })
