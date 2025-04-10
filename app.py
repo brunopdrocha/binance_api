@@ -10,7 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 
 
-DATABASE_URI = 'mysql+pymysql://brunopdrocha:admin%40123@azurebinancedata.mysql.database.azure.com:3306/trading_bot?ssl_verify_cert=false'
+DATABASE_URI = 'mysql+pymysql://brunopdrocha:admin%40123@azurebinancedata.mysql.database.azure.com:3306/trading_bot'
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
