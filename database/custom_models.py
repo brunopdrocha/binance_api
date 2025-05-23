@@ -62,6 +62,8 @@ class TradeReport(db.Model):
     # Relacionamento bidirecional
     order = relationship("Order", back_populates="reports")
 
+# Função de Deste Dataable 
+"""
 if __name__ == "__main__":
     from flask import Flask
     
@@ -87,3 +89,4 @@ if __name__ == "__main__":
             
         except Exception as e:
             print("Erro:", str(e))
+"""
