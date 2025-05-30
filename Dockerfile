@@ -13,5 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia todos os arquivos da aplicação
 COPY . .
 
-# Comando para iniciar a aplicação
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
+# Define a variável de ambiente para a porta
+ENV PORT=80
+
+# Expõe a porta 80
+EXPOSE 80
+
+# Comando para rodar o app Flask diretamente
+CMD ["python", "app.py"]
