@@ -1,0 +1,11 @@
+version: '3.8' # Define a versão do Docker Compose
+
+services:
+  app: # Nome do seu serviço/aplicação
+    build: . # Constrói a imagem a partir do Dockerfile no diretório atual
+    ports:
+      - "80:80"
+    environment:
+      - DATABASE_URI=${DATABASE_URI}
+      - PORT=${PORT:-80}
+      - FLASK_APP=app.py
