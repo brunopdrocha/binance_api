@@ -29,7 +29,7 @@ reports_schema = TradeReportSchema(many=True)  # Para múltiplos relatórios
 # ROTAS DE USUÁRIO - CRUD COMPLETO
 # ================================
 
-@bp.rpute('/teste',methods=['GET'])
+@bp.route('/teste',methods=['GET'])
 def ola():
 
     try:
