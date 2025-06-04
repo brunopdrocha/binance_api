@@ -1,0 +1,27 @@
+name: Docker Image CI
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Login to Azure Container Registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: containerbinanceapi.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    
+    - name: Build Docker image
+      run: docker build -t api_binance .
+    
+    - name: Tag image for Azure Container Registry
+      run: docker tag api_binance containerbinanceapi.azurecr.io/api_binance:latest
+    
+    - name: Push image to Azure Container Registry
+      run: docker push containerbinanceapi.azurecr.io/api_binance:latest
