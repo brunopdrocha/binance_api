@@ -11,3 +11,5 @@ docker run -p 80:80 api_binance
 docker tag api_binance containerbinanceapi.azurecr.io/api_binance:latest
 
 docker push containerbinanceapi.azurecr.io/api_binance:latest
+
+az login 

@@ -29,6 +29,16 @@ reports_schema = TradeReportSchema(many=True)  # Para múltiplos relatórios
 # ROTAS DE USUÁRIO - CRUD COMPLETO
 # ================================
 
+@bp.rpute('/teste',methods=['GET'])
+def ola():
+
+    try:
+        return jsonify({"sucess":"Sua api esta funcionando"}),HTTPStatus.OK
+
+    except Exception as e:
+        return jsonify({"error": "Sua api esta funcionando"}), HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
 @bp.route('/users', methods=['POST'])
 def create_user():
     """
